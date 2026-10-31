@@ -16,4 +16,4 @@ const modal=document.getElementById('modal'),form=document.getElementById('clanF
 document.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.open;document.getElementById('modalTitle').textContent=mode==='create'?'Klanını oluştur':'Klana katılma talebi';form.reset();out.style.display='none';modal.style.display='grid';}));
 function close(){modal.style.display='none'}document.getElementById('close').addEventListener('click',close);modal.addEventListener('click',e=>{if(e.target===modal)close()});document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
 form.addEventListener('submit',e=>{e.preventDefault();});
-</script><script src="https://cdn.jsdelivr.net/npm/parse@5.3.0/dist/parse.min.js"></script><script src="/js/back4app-config.js"></script><script src="/js/app.js"></script></body></html>
+</script><script src="https://cdn.jsdelivr.net/npm/parse@5.3.0/dist/parse.min.js"></script><script src="/public/js/back4app-config.js"></script><script src="/public/js/app.js"></script></body></html>
