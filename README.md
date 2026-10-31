@@ -2,14 +2,14 @@
 
 NEXORA is an independent community platform concept for Car Parking Multiplayer players to present clans, discover teams, and organize community activity.
 
-## Starter interface
-- Responsive landing page with animated brand intro.
-- Create-clan and join-clan dialogs currently export local JSON request files only.
+## Back4App backend
+- Parse Server account registration, login, and logout.
+- Cloud Code clan creation, public clan discovery, joining, member-clan listing, messages, and moderation reports.
+- Server-side membership checks and privileged writes.
+- Cloud Code source: `cloud/main.js`; browser integration: `public/js/`.
 
-## Backend foundation
-- Supabase migration for profiles, clans, memberships, invitations, chat messages, and moderation reports.
-- Row Level Security policies; privileged membership and moderation transitions are server-only.
-- Setup guide: [BACKEND_SETUP.md](BACKEND_SETUP.md).
+## Setup
+Follow [BACKEND_SETUP.md](BACKEND_SETUP.md). NEXORA must use its own Back4App app, separate from SENTRIX, AETHRION, and TdevKuantum.
 
-## Brand and affiliation
-NEXORA is not affiliated with, sponsored by, or endorsed by the creators or rights holders of Car Parking Multiplayer. The game name describes the community's focus; the visual identity is original.
+## Brand
+NEXORA is not affiliated with, sponsored by, or endorsed by the creators or rights holders of Car Parking Multiplayer.
