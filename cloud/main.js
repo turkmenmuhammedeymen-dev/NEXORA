@@ -7,7 +7,7 @@ async function membership(u,c){const q=new Parse.Query('NxClanMember');q.equalTo
 async function need(u,c,roles){const m=await membership(u,c);if(!m||(roles&&!roles.includes(m.get('role'))))throw new Error('PERMISSION_DENIED');return m;}
 function code(){return 'NX-'+Math.random().toString(36).slice(2,6).toUpperCase()+'-'+Math.random().toString(36).slice(2,6).toUpperCase();}
 async function uniqueCode(){for(let i=0;i<8;i++){const v=code(),q=new Parse.Query('NxClan');q.equalTo('inviteCode',v);if(!await q.first({useMasterKey:true}))return v;}throw new Error('CODE_GENERATION_FAILED');}
-function safeClan(c){return {id:c.id,name:c.get('name'),tag:c.get('tag'),logoUrl:c.get('logoUrl')||'',description:c.get('description')||'',founderName:c.get('founderName'),founderGameId:c.get('founderGameId'),founderGameName:c.get('founderGameName'),inviteCode:c.get('inviteCode'),memberCount:c.get('memberCount')||1,ranks:c.get('ranks')||['Kurucu','Yönetici','Üye']};}
+function safeClan(c){return {id:c.id,ownerId:c.get('owner')?c.get('owner').id:null,name:c.get('name'),tag:c.get('tag'),logoUrl:c.get('logoUrl')||'',description:c.get('description')||'',founderName:c.get('founderName'),founderGameId:c.get('founderGameId'),founderGameName:c.get('founderGameName'),inviteCode:c.get('inviteCode'),memberCount:c.get('memberCount')||1,ranks:c.get('ranks')||['Kurucu','Yönetici','Üye']};}
 Parse.Cloud.define('nexoraHealth',async()=>({app:APP,status:'ok',version:'2.0.0'}));
 Parse.Cloud.define('nexoraCreateClan',async r=>{
  const u=userOf(r),p=r.params,name=str(p.name,48,'NAME'),tag=str(p.tag,8,'TAG').toUpperCase();
@@ -27,7 +27,7 @@ Parse.Cloud.define('nexoraJoinClan',async r=>{
  const A=Parse.Object.extend('NxClanActivity'),a=new A();a.set('clan',c);a.set('text',u.get('username')+' klana katıldı');await a.save(null,{useMasterKey:true});
  return {alreadyMember:false,clan:safeClan(c)};
 });
-Parse.Cloud.define('nexoraGetClan',async r=>{const u=userOf(r),c=await clan(r.params.clanId);await need(u,c);return safeClan(c);});
+Parse.Cloud.define('nexoraGetClan',async r=>{const u=userOf(r),c=await clan(r.params.clanId),m=await need(u,c);return {...safeClan(c),myRole:m.get('role'),myRank:m.get('rank')};});
 Parse.Cloud.define('nexoraListMyClans',async r=>{const u=userOf(r),q=new Parse.Query('NxClanMember');q.equalTo('user',u);q.equalTo('status','active');q.include('clan');q.limit(100);return (await q.find({useMasterKey:true})).map(m=>{const c=m.get('clan');return c?{...safeClan(c),myRank:m.get('rank'),myRole:m.get('role')}:null;}).filter(Boolean);});
 Parse.Cloud.define('nexoraListMembers',async r=>{const u=userOf(r),c=await clan(r.params.clanId);await need(u,c);const q=new Parse.Query('NxClanMember');q.equalTo('clan',c);q.equalTo('status','active');q.ascending('createdAt');q.limit(200);return (await q.find({useMasterKey:true})).map(m=>({id:m.id,userId:m.get('user').id,name:m.get('displayName')||m.get('user').get('username'),gameId:m.get('gameId')||'',gameName:m.get('gameName')||'',rank:m.get('rank')||'Üye',role:m.get('role')}));});
 Parse.Cloud.define('nexoraSetRanks',async r=>{const u=userOf(r),c=await clan(r.params.clanId);await need(u,c,['owner']);const ranks=(Array.isArray(r.params.ranks)?r.params.ranks:[]).map(x=>str(x,24,'RANK')).slice(0,12);if(!ranks.length||!ranks.some(x=>x==='Kurucu'))throw new Error('KEEP_FOUNDER_RANK');c.set('ranks',ranks);await c.save(null,{useMasterKey:true});return {ranks};});
