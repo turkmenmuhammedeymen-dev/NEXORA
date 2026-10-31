@@ -1,14 +1,19 @@
-# NEXORA backend setup
+# NEXORA — Back4App setup
 
-## Supabase
-1. Create a new Supabase project dedicated to NEXORA (do not reuse SENTRIX's project).
-2. Open SQL Editor and run `supabase/migrations/001_initial_schema.sql`.
-3. Configure email confirmation and redirect URLs for the deployed NEXORA domain.
-4. Set `SUPABASE_URL` and `SUPABASE_ANON_KEY` in the hosting provider's environment settings.
-5. Keep service-role credentials server-side only; never commit secrets.
+## 1. Create a dedicated Back4App app
+Create a new Parse app named NEXORA. Do not reuse the SENTRIX, AETHRION, or TdevKuantum app.
 
-## Current boundary
-The schema defines profiles, clans, memberships, invitations, chat messages, and moderation reports with Row Level Security. Membership changes, invite redemption, and report status changes are intentionally server-only pending trusted Edge Functions. Enable Supabase Realtime for `clan_messages` only after reviewing policies and publication settings.
+## 2. Configure the browser
+In `public/js/back4app-config.js`, replace the placeholders with this NEXORA app's **Application ID** and **JavaScript Key**. These are client keys, not the Master Key.
 
-## Before production
-Add username normalization, invite token generation and hashing, anti-spam limits, message moderation, report review workflows, account deletion, and automated RLS tests. Add clear community rules and reporting/contact flows.
+## 3. Deploy Cloud Code
+Deploy `cloud/main.js` as the NEXORA app's Cloud Code main.js. Confirm these functions are available: `nexoraHealth`, `nexoraCreateClan`, `nexoraListPublicClans`, `nexoraJoinClan`, `nexoraListMyClans`, `nexoraSendMessage`, `nexoraListMessages`, and `nexoraCreateReport`.
+
+## 4. Configure Parse security
+Enable email verification if desired. Review class-level permissions so browser clients cannot directly write protected classes: `NxClan`, `NxClanMember`, `NxClanMessage`, and `NxModerationReport`. The Cloud Code functions perform the writes with master privileges after checking the session user. Never expose the Master Key.
+
+## 5. Deploy and test
+Deploy the repository root to your static host. Verify `/js/back4app-config.js` and `/js/app.js` load. Test signup, login, clan creation, clan discovery, joining, messages, reporting, and logout using separate test accounts.
+
+## Current limitations
+The backend foundation is connected in code, but it is not live until you create the Back4App app, add its client keys, deploy Cloud Code, and test the functions. Invite-token generation/redemption, moderation review tools, profile editing, and full chat UI remain follow-up work. Do not promise these features as complete yet.
